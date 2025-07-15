@@ -1,0 +1,54 @@
+{% extends "blog/base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+    <article class="media content-section">
+        <img class="rounded-circle article-img" src="{{ post.author.profile.image.url }}">
+        <div class="media-body">
+            <div class="article-metadata">
+                <a class="mr-2" href="{% url 'user-profile' object.author.username %}">{{ post.author }}</a>
+                <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small>
+            </div>
+            <h2 class="article-title">{{ post.title }}</h2>
+            <p class="article-content">{{ post.content }}</p>
+            {% if post.author == user %}
+                <div class="text-right">
+                    <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' post.id %}">Update</a>
+                    <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' post.id %}">Delete</a>
+                </div>
+            {% endif %}
+        </div>
+    </article>
+
+    <hr>
+
+    <h4>Comments</h4>
+
+    {% for comment in comments %}
+        <div class="media content-section">
+            <img class="rounded-circle article-img" src="{{ comment.author.profile.image.url }}">
+            <div class="media-body">
+                <h5 class="mt-0">{{ comment.author }}</h5>
+                <p class="text-muted"><small>{{ comment.date_posted|date:"F d, Y H:i" }}</small></p>
+                <p>{{ comment.content }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <p>No comments yet.</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+        <hr>
+        <h5>Leave a Comment</h5>
+        <div class="form-group">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.content }}
+                <br>
+                <button type="submit" class="btn btn-secondary">Post Comment</button>
+            </form>
+        </div>
+    {% else %}
+        <p><a href="{% url 'login' %}">Login</a> to comment.</p>
+    {% endif %}
+
+{% endblock content %}
